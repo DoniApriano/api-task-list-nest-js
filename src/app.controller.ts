@@ -1,14 +1,15 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Req } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthGuard } from './auth/auth.guard';
 
 @UseGuards(AuthGuard)
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  getHello(@Request() req) {
+    const { user } = req.user;
+    return { message: 'This is protected data', user };
   }
 }

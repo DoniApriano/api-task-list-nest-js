@@ -45,3 +45,9 @@ model Category {
     user      User     @relation(fields: [userId], references: [id])
     tasks     Task[]
 }
+
+model BlacklistToken {
+    id        String   @id @default(uuid())
+    token     String   @unique
+    createdAt DateTime @default(now())
+}
