@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -36,12 +36,26 @@ export class UserService {
     async validateUser(email: string, passwordInput: string) {
         const userData = await this.findOne({ email });
         if (!userData) {
-            throw new UserNotFoundException();
+            throw new NotFoundException(
+                {
+                    error: {
+                        message: `Email ${email} is not found`,
+                        statusCode: HttpStatus.NOT_FOUND
+                    }
+                }
+            );
         }
 
         const isMatch = await bcrypt.compare(passwordInput, userData.password);
         if (!isMatch) {
-            throw new AuthenticationFailedException();
+            throw new UnauthorizedException(
+                {
+                    error: {
+                        message: `Email ${email} and Password is not match`,
+                        statusCode: HttpStatus.UNAUTHORIZED
+                    }
+                }
+            );
         }
 
         const { password, ...result } = userData;
