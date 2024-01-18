@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -10,6 +10,10 @@ export class UserService {
     constructor(private prismaService: PrismaService) { }
 
     async create(createUserDto: CreateUserDto) {
+        const checkEmail = await this.findOne(createUserDto);
+        if (checkEmail) {
+            throw new ConflictException("email diplicate");
+        }
         if (createUserDto.password) {
             createUserDto.password = await bcrypt.hash(createUserDto.password, 12);
         }
